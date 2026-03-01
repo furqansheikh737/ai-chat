@@ -160,7 +160,7 @@ export default function Home() {
         >
           <div className="py-6 md:py-8 max-w-3xl lg:max-w-4xl mx-auto w-full">
             {messages.length === 0 ? (
-              <div className="h-[60vh] flex flex-col items-center justify-center text-center">
+              <div className="h-[50vh] flex flex-col items-center justify-center text-center">
                 <h1 className="text-3xl md:text-4xl font-medium tracking-tight mb-2">
                   <span className="bg-gradient-to-r from-[#4285f4] via-[#9b72cb] to-[#d96570] bg-clip-text text-transparent animate-gradient">
                     Hello, Furqan
