@@ -24,3 +24,59 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@layer utilities {
+  /* Main Container jahan chat hoti hai */
+  .custom-scrollbar {
+    scrollbar-gutter: stable; /* Content ko jump karne se rokta hai */
+  }
+
+  .bottom-fade {
+    /* Yeh div ko niche se background color ke saath blend karega */
+    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  }
+
+  /* Scrollbar Width */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  /* Track (Piche ka hissa) - Isey transparent rakhen taake floating lage */
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+
+  /* Thumb (Jo move karta hai) */
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1); /* Halka white/grey transparency ke saath */
+    border-radius: 20px;
+    border: 1px solid transparent; /* Padding effect dene ke liye */
+    background-clip: content-box;
+  }
+
+  /* Hover karne par thumb thoda dark/visible ho jaye */
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+  }
+
+  /* Firefox ke liye (limited support) */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+}
+html, body {
+  /* Isse scrollbar layout ko push nahi karegi aur text box ke peeche nahi chupegi */
+  overflow-y: overlay; 
+}
+
+/* Chrome/Brave/Edge ke liye */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}

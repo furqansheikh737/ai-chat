@@ -6,9 +6,27 @@ export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json();
+    const { messages, files, isTitleRequest } = await req.json();
     
-    // Gemini expects history and the latest message separately
+    // Model selection
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.5-flash",
+      systemInstruction: isTitleRequest 
+        ? "You are a title generator. Create a 3-4 word title for the chat. No quotes, no markdown, just plain text."
+        : "You are Gemini, a helpful and concise AI assistant. Use markdown for formatting."
+    });
+
+    // --- CASE 1: Agar sirf Title chahiye (Sidebar ke liye) ---
+    if (isTitleRequest) {
+      const lastMessage = messages[messages.length - 1].content;
+      const result = await model.generateContent(lastMessage);
+      const response = await result.response;
+      return new Response(response.text(), {
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+      });
+    }
+
+    // --- CASE 2: Normal Chat Logic (Streaming) ---
     const history = messages.slice(0, -1).map((m: any) => ({
       role: m.role === "user" ? "user" : "model",
       parts: [{ text: m.content }],
@@ -16,15 +34,14 @@ export async function POST(req: Request) {
     
     const lastMessage = messages[messages.length - 1].content;
 
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash",
-      systemInstruction: "You are Gemini, a helpful and concise AI assistant. Use markdown for formatting."
-    });
+    const promptParts = [
+      ...(files || []), 
+      { text: lastMessage }
+    ];
 
     const chat = model.startChat({ history });
-    const result = await chat.sendMessageStream(lastMessage);
+    const result = await chat.sendMessageStream(promptParts);
 
-    // Convert Gemini stream to a readable stream for the frontend
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
@@ -43,7 +60,9 @@ export async function POST(req: Request) {
     return new Response(stream, {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
+
   } catch (error: any) {
+    console.error("API Error:", error);
     return new Response(JSON.stringify({ error: error.message }), { 
       status: 500,
       headers: { "Content-Type": "application/json" }
